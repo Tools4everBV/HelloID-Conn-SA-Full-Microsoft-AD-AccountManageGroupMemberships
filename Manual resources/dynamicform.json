@@ -19,7 +19,7 @@
       {
         "key": "gridUsers",
         "templateOptions": {
-          "label": "Select user account",
+          "label": "Select user",
           "required": true,
           "grid": {
             "columns": [
