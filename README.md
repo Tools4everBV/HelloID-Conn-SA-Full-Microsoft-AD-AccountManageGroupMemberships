@@ -51,6 +51,31 @@ The following user-defined variables are used by the connector.
 
 • **The Domain Users group is automatically filtered out from the available groups list.**
 
+## Development resources
+
+### PowerShell Module
+This connector uses the ActiveDirectory PowerShell module for managing Active Directory groups and user accounts.
+
+- [ActiveDirectory Module Documentation](https://learn.microsoft.com/en-us/powershell/module/activedirectory/)
+
+### Cmdlets
+The following PowerShell cmdlets are used by the connector:
+
+| Cmdlet | Description |
+| --- | --- |
+| Get-ADGroup | Retrieves Active Directory groups |
+| Get-ADUser | Retrieves Active Directory user accounts |
+| Get-ADPrincipalGroupMembership | Retrieves group memberships for a user or group |
+| Add-ADGroupMember | Adds one or more users to an Active Directory group |
+| Remove-ADGroupMember | Removes one or more users from an Active Directory group |
+
+### Cmdlet documentation
+- [Get-ADGroup](https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-adgroup)
+- [Get-ADUser](https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-aduser)
+- [Get-ADPrincipalGroupMembership](https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-adprincipalgroupmembership)
+- [Add-ADGroupMember](https://learn.microsoft.com/en-us/powershell/module/activedirectory/add-adgroupmember)
+- [Remove-ADGroupMember](https://learn.microsoft.com/en-us/powershell/module/activedirectory/remove-adgroupmember)
+
 ## Getting help
 
 > 💡 **Tip:**
