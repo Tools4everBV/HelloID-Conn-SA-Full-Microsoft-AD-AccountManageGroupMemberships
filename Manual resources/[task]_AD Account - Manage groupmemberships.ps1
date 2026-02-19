@@ -3,87 +3,90 @@ $InformationPreference = "Continue"
 $WarningPreference = "Continue"
 
 # variables configured in form
+$user = $form.gridUsers
 $groupsToAdd = $form.memberships.leftToRight
 $groupsToRemove = $form.memberships.RightToLeft
-$userPrincipalName = $form.gridUsers.UserPrincipalName
 
-Write-Verbose "Groups to add: $groupsToAdd"
-Write-Verbose "Groups to remove: $groupsToRemove"
-
-try {
-    $adUser = Get-ADuser -Filter { UserPrincipalName -eq $userPrincipalName }
-    Write-Information "Found AD user [$userPrincipalName]"
-} catch {
-    Write-Error "Could not find AD user [$userPrincipalName]. Error: $($_.Exception.Message)"
-}
-
-foreach($group in $groupsToAdd){
+foreach($groupToAdd in $groupsToAdd){
     try{
-        $addGroupMember = Add-ADGroupMember -Identity $group.name -Members $adUser -Confirm:$false
-        Write-Information "Successfully added AD user [$userPrincipalName] to AD group $($group.name)"
-    
-        $userDisplayName = $adUser.Name
-        $userId = $([string]$adUser.SID)
+        # Add member to group
+        # https://learn.microsoft.com/en-us/powershell/module/activedirectory/add-adgroupmember
+        $actionMessage = "adding user with displayName [$($user.displayName)] and objectGuid [$($user.objectGuid)] as member to group with name [$($groupToAdd.Name)] and objectGuid [$($groupToAdd.objectGuid)]"
+
+        $addGroupMemberSplatParams = @{
+            Identity    = $groupToAdd.ObjectGuid
+            Members     = $user.ObjectGuid
+            Verbose     = $false
+            ErrorAction = "Stop"
+        }
+        Add-ADGroupMember @addGroupMemberSplatParams
+
+        # Send auditlog to HelloID
         $Log = @{
             Action            = "GrantMembership" # optional. ENUM (undefined = default) 
             System            = "ActiveDirectory" # optional (free format text) 
-            Message           = "Successfully added AD user $userDisplayName to group $($group.name)" # required (free format text) 
+            Message           = "Added user with displayName [$($user.displayName)] and objectGuid [$($user.objectGuid)] as member to group with name [$($groupToAdd.Name)] and objectGuid [$($groupToAdd.objectGuid)]." # required (free format text) 
             IsError           = $false # optional. Elastic reporting purposes only. (default = $false. $true = Executed action returned an error) 
-            TargetDisplayName = $userDisplayName # optional (free format text) 
-            TargetIdentifier  = $userId # optional (free format text) 
+            TargetDisplayName = $groupToAdd.Name # optional (free format text) 
+            TargetIdentifier  = $groupToAdd.ObjectGuid # optional (free format text) 
         }
-        #send result back  
         Write-Information -Tags "Audit" -MessageData $log
     } catch {
-        Write-Error "Could not add AD user [$userPrincipalName] to AD group $($group.name). Error: $($_.Exception.Message)"
-
-        $userDisplayName = $adUser.Name
-        $userId = $([string]$adUser.SID) 
-        $Log = @{
-            Action            = "GrantMembership" # optional. ENUM (undefined = default) 
-            System            = "ActiveDirectory" # optional (free format text) 
-            Message           = "Failed to add AD user $userDisplayName to group $($group.name). Error: $($_.Exception.Message)" # required (free format text) 
-            IsError           = $true # optional. Elastic reporting purposes only. (default = $false. $true = Executed action returned an error) 
-            TargetDisplayName = $userDisplayName # optional (free format text) 
-            TargetIdentifier  = $userId # optional (free format text) 
-        }
-        #send result back  
+        $ex = $PSItem
+        $auditMessage = "Error $($actionMessage). Error: $($ex.Exception.Message)"
+        $warningMessage = "Error at Line [$($ex.InvocationInfo.ScriptLineNumber)]: $($ex.InvocationInfo.Line). Error: $($ex.Exception.Message)"
+        $log = @{
+                Action            = "GrantMembership" # optional. ENUM (undefined = default) 
+                System            = "ActiveDirectory" # optional (free format text) 
+                Message           = $auditMessage # required (free format text) 
+                IsError           = $true # optional. Elastic reporting purposes only. (default = $false. $true = Executed action returned an error) 
+                TargetDisplayName = $groupToAdd.Name # optional (free format text) 
+                TargetIdentifier  = $groupToAdd.ObjectGuid # optional (free format text) 
+            }
         Write-Information -Tags "Audit" -MessageData $log
+        Write-Warning $warningMessage   
+        Write-Error $auditMessage
     }
 }
 
-
-foreach($group in $groupsToRemove){
+foreach($groupToRemove in $groupsToRemove){
     try{
-        $removeGroupMember = Remove-ADGroupMember -Identity $group.name -Members $adUser -Confirm:$false
-        Write-Information "Successfully removed AD user [$userPrincipalName] from AD group $($group.name)"
-    
-        $userDisplayName = $adUser.Name
-        $userId = $([string]$adUser.SID)
+        # Remove member from group
+        # https://learn.microsoft.com/en-us/powershell/module/activedirectory/remove-adgroupmember
+        $actionMessage = "removing user with displayName [$($user.displayName)] and objectGuid [$($user.objectGuid)] as member from group with name [$($groupToRemove.Name)] and objectGuid [$($groupToRemove.objectGuid)]"
+        
+        $removeGroupMemberSplatParams = @{
+            Identity    = $groupToRemove.ObjectGuid
+            Members     = $user.ObjectGuid
+            Confirm     = $false
+            ErrorAction = "Stop"
+        }
+        Remove-ADGroupMember @removeGroupMemberSplatParams
+
+        # Send auditlog to HelloID
         $Log = @{
             Action            = "RevokeMembership" # optional. ENUM (undefined = default) 
             System            = "ActiveDirectory" # optional (free format text) 
-            Message           = "Successfully removed AD user $userDisplayName from group $($group.name)" # required (free format text) 
+            Message           = "Removed user with displayName [$($user.displayName)] and objectGuid [$($user.objectGuid)] as member from group with name [$($groupToRemove.Name)] and objectGuid [$($groupToRemove.objectGuid)]." # required (free format text) 
             IsError           = $false # optional. Elastic reporting purposes only. (default = $false. $true = Executed action returned an error) 
-            TargetDisplayName = $userDisplayName # optional (free format text) 
-            TargetIdentifier  = $userId # optional (free format text) 
+            TargetDisplayName = $groupToRemove.Name # optional (free format text) 
+            TargetIdentifier  = $groupToRemove.ObjectGuid # optional (free format text) 
         }
-        #send result back  
         Write-Information -Tags "Audit" -MessageData $log
     } catch {
-        Write-Error "Could not remove AD user [$userPrincipalName] from AD group $($group.name). Error: $($_.Exception.Message)"
-
-        $userDisplayName = $adUser.Name
-        $userId = $([string]$adUser.SID) 
-        $Log = @{
-            Action            = "GrantMembership" # optional. ENUM (undefined = default) 
+        $ex = $PSItem
+        $auditMessage = "Error $($actionMessage). Error: $($ex.Exception.Message)"
+        $warningMessage = "Error at Line [$($ex.InvocationInfo.ScriptLineNumber)]: $($ex.InvocationInfo.Line). Error: $($ex.Exception.Message)"
+        $log = @{
+            Action            = "RevokeMembership" # optional. ENUM (undefined = default) 
             System            = "ActiveDirectory" # optional (free format text) 
-            Message           = "Failed to remove AD user $userDisplayName from group $($group.name). Error: $($_.Exception.Message)" # required (free format text) 
+            Message           = $auditMessage # required (free format text) 
             IsError           = $true # optional. Elastic reporting purposes only. (default = $false. $true = Executed action returned an error) 
-            TargetDisplayName = $userDisplayName # optional (free format text) 
-            TargetIdentifier  = $userId # optional (free format text) 
+            TargetDisplayName = $groupToRemove.Name # optional (free format text) 
+            TargetIdentifier  = $groupToRemove.ObjectGuid # optional (free format text) 
         }
-        #send result back  
         Write-Information -Tags "Audit" -MessageData $log
+        Write-Warning $warningMessage   
+        Write-Error $auditMessage
     }
 }
