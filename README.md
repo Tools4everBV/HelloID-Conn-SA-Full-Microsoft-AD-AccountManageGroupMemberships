@@ -1,69 +1,86 @@
-<!-- Description -->
+# HelloID-Conn-SA-Full-AD-AccountManageGroupMemberships
+
+| :information_source: Information |
+|:---|
+| This repository contains the connector and configuration code only. The implementer is responsible for acquiring the connection details such as username, password, certificate, etc. You might even need to sign a contract or agreement with the supplier before implementing this connector. Please contact the client's application manager to coordinate the connector requirements. |
+
 ## Description
-This HelloID Service Automation Delegated Form provides AD user account groupmembership management functionality. The following options are available:
- 1. Search and select the target AD user account
- 2. Show basic AD user account attributes of selected target user
- 3. Show available AD groups and current user account groupmemberships
- 4. Modify groupmemberships for selected user based on modifications in this form
- 
 
-## Versioning
-| Version | Description | Date |
-| - | - | - |
-| 1.0.1   | Updated to use new agent and audit logging | 2022/03/05  |
-| 1.0.1   | Added version number and updated all-in-one script | 2021/11/03  |
-| 1.0.0   | Initial release | 2020/09/01  |
+_HelloID-Conn-SA-Full-AD-AccountManageGroupMemberships_ is a delegated form designed for use with HelloID Service Automation (SA). It can be imported into HelloID and customized according to your requirements.
 
+By using this delegated form, you can manage Active Directory user account group memberships. The following options are available:
 
-<!-- TABLE OF CONTENTS -->
-## Table of Contents
-* [Description](#description)
-* [All-in-one PowerShell setup script](#all-in-one-powershell-setup-script)
-  * [Getting started](#getting-started)
-* [Post-setup configuration](#post-setup-configuration)
-* [Manual resources](#manual-resources)
-* [Getting help](#getting-help)
+1. Search for and select the target Active Directory (AD) user account by Name, DisplayName, User Principal Name (UPN), or Mail address.
+2. View basic AD user account attributes (ObjectGuid, SamAccountName, DisplayName, UserPrincipalName, Enabled status, Description, Company, Department, and Title).
+3. View all available AD groups (from specified OUs) and the current group memberships of the selected user account.
+4. Add or remove group memberships for the selected user account with comprehensive audit logging.
 
+## Getting started
 
-## All-in-one PowerShell setup script
-The PowerShell script "createform.ps1" contains a complete PowerShell script using the HelloID API to create the complete Form including user defined variables, tasks and data sources.
+### Requirements
 
- _Please note that this script asumes none of the required resources do exists within HelloID. The script does not contain versioning or source control_
+• **Active Directory Access**:
+  The connector requires access to an Active Directory domain with sufficient permissions to add and remove group memberships. A service account with appropriate AD permissions is necessary.
 
+• **HelloID Agent**:
+  A HelloID Agent must be installed and configured to communicate with the Active Directory domain.
 
-### Getting started
-Please follow the documentation steps on [HelloID Docs](https://docs.helloid.com/hc/en-us/articles/360017556559-Service-automation-GitHub-resources) in order to setup and run the All-in one Powershell Script in your own environment.
+• **PowerShell module 'ActiveDirectory'**:
+  The HelloID Agent must have PowerShell available with Active Directory module support.
 
- 
-## Post-setup configuration
-After the all-in-one PowerShell script has run and created all the required resources. The following items need to be configured according to your own environment
- 1. Update the following [user defined variables](https://docs.helloid.com/hc/en-us/articles/360014169933-How-to-Create-and-Manage-User-Defined-Variables)
-<table>
-  <tr><td><strong>Variable name</strong></td><td><strong>Example value</strong></td><td><strong>Description</strong></td></tr>
-  <tr><td>ADusersSearchOU</td><td>[{ "OU": "OU=Disabled Users,OU=HelloID Training,DC=veeken,DC=local"},{ "OU": "OU=Users,OU=HelloID Training,DC=veeken,DC=local"},{"OU": "OU=External,OU=HelloID Training,DC=veeken,DC=local"}]</td><td>Array of Active Directory OUs for scoping AD user accounts in the search result of this form</td></tr>
-  <tr><td>ADgroupsSearchOU</td><td>[{ "OU": "OU=Groups,OU=HelloID Training,DC=veeken,DC=local"}]</td><td>Array of Active Directory OUs for scoping AD groups to add in this form</td></tr>
-</table>
+### Connection settings
 
-## Manual resources
-This Delegated Form uses the following resources in order to run
+The following user-defined variables are used by the connector.
 
-### Powershell data source 'AD-user-generate-table-wildcard-manage-groupmemberships'
-This Powershell data source runs an Active Directory query to search for matching AD user accounts. It uses an array of Active Directory OU's specified as HelloID user defined variable named _"ADusersSearchOU"_ to specify the search scope.
+| Setting | Description | Mandatory |
+|---------|-------------|-----------|
+| ADusersSearchOU | Array of Active Directory OUs for scoping AD user accounts in the search result of this form | Yes |
+| ADgroupsSearchOU | Array of Active Directory OUs for scoping AD groups available in this form | Yes |
 
-### Powershell data source 'AD-user-generate-table-attributes-basic-manage-groupmemberships'
-This Powershell data source runs an Active Directory query to select a list of basic user attributes of the selected AD user account.  
+## Remarks
 
-### Powershell data source 'AD-group-generate-table-manage-groupmemberships'
-This Powershell data source runs an Active Directory query to receive the list of available AD groups. It uses an array of Active Directory OU's specified as HelloID user defined variable named _"ADgroupsSearchOU"_ to specify the scope.
+### User Search
 
-### Powershell data source 'AD-user-generate-table-groupmemberships-manage-groupmemberships'
-This Powershell data source runs an Active Directory query to receive the list of current groupmemberships based on the selected target AD user account.
+• **Search Functionality:** Users can search for accounts using a wildcard (`*`) to return all users within the specified OUs, or by entering partial text to search across user attributes (Name, DisplayName, User Principal Name, or Mail address).
 
-### Delegated form task 'AD-user-update-groupmemberships-manage-groupmemberships'
-This delegated form task will modify AD groupmemberships for the selected target AD user account based on the modifications in the Delegated Form.
+• **The search scope is limited to the OUs defined in the `ADusersSearchOU` variable.**
+
+### Group Search
+
+• **Search Functionality:** Groups are retrieved from the Active Directory OUs specified in the `ADgroupsSearchOU` variable.
+
+• **The Domain Users group is automatically filtered out from the available groups list.**
+
+## Development resources
+
+### PowerShell Module
+This connector uses the ActiveDirectory PowerShell module for managing Active Directory groups and user accounts.
+
+- [ActiveDirectory Module Documentation](https://learn.microsoft.com/en-us/powershell/module/activedirectory/)
+
+### Cmdlets
+The following PowerShell cmdlets are used by the connector:
+
+| Cmdlet | Description |
+| --- | --- |
+| Get-ADGroup | Retrieves Active Directory groups |
+| Get-ADUser | Retrieves Active Directory user accounts |
+| Get-ADPrincipalGroupMembership | Retrieves group memberships for a user or group |
+| Add-ADGroupMember | Adds one or more users to an Active Directory group |
+| Remove-ADGroupMember | Removes one or more users from an Active Directory group |
+
+### Cmdlet documentation
+- [Get-ADGroup](https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-adgroup)
+- [Get-ADUser](https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-aduser)
+- [Get-ADPrincipalGroupMembership](https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-adprincipalgroupmembership)
+- [Add-ADGroupMember](https://learn.microsoft.com/en-us/powershell/module/activedirectory/add-adgroupmember)
+- [Remove-ADGroupMember](https://learn.microsoft.com/en-us/powershell/module/activedirectory/remove-adgroupmember)
 
 ## Getting help
-_If you need help, feel free to ask questions on our [forum](https://forum.helloid.com/forum/helloid-connectors/service-automation/497-helloid-sa-active-directory-ad-user-manage-group-memberships)_
 
-## HelloID Docs
-The official HelloID documentation can be found at: https://docs.helloid.com/
+> 💡 **Tip:**
+> For more information on Delegated Forms, please refer to our [documentation](https://docs.helloid.com/en/service-automation/delegated-forms.html) pages.
+
+## HelloID docs
+
+The official HelloID documentation can be found at: [https://docs.helloid.com/](https://docs.helloid.com/)
