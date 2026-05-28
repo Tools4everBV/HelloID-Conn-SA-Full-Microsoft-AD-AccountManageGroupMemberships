@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com), and this project adheres to [Semantic Versioning](https://semver.org).
 
+## [2.0.1] - 2026-05-28
+
+### Added
+
+- Best practice documentation highlighting the recommended use of HelloID Products for permission management and lifecycle governance
+
 ## [2.0.0.0] - 2026-02-19
 
 ### Added
