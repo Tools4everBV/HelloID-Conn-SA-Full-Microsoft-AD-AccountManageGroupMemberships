@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com), and this project adheres to [Semantic Versioning](https://semver.org).
 
+## [2.0.2] - 2026-06-05
+
+### Changed
+
+- Converted GitHub callout syntax to table format for better compatibility with text editors
+
 ## [2.0.1] - 2026-05-28
 
 ### Added
