@@ -1,10 +1,8 @@
 # HelloID-Conn-SA-Full-AD-AccountManageGroupMemberships
 
-> [!IMPORTANT]
-> **Best Practice:** Use **HelloID Products** for requesting and managing permissions (group memberships, mailbox access, application roles). Products provide governance, approval workflows, admin visibility, and full lifecycle management.  
-> Use delegated forms for one-time operational actions (creating resources like shared mailboxes, password resets, attribute updates) only.  
->
-> **[Read more: Products vs. Delegated Forms](https://docs.helloid.com/en/service-automation/products-vs--delegated-forms.html)**  
+| :warning: Important |
+|:---|
+| **Best Practice:** Use **HelloID Products** for requesting and managing permissions (group memberships, mailbox access, application roles). Products provide governance, approval workflows, admin visibility, and full lifecycle management.<br>Use delegated forms for one-time operational actions (creating resources like shared mailboxes, password resets, attribute updates) only.<br><br>**[Read more: Products vs. Delegated Forms](https://docs.helloid.com/en/service-automation/products-vs--delegated-forms.html)** |
 
 | :information_source: Information |
 |:---|
@@ -84,8 +82,9 @@ The following PowerShell cmdlets are used by the connector:
 
 ## Getting help
 
-> 💡 **Tip:**
-> For more information on Delegated Forms, please refer to our [documentation](https://docs.helloid.com/en/service-automation/delegated-forms.html) pages.
+| :bulb: Tip |
+|:---|
+| For more information on Delegated Forms, please refer to our [documentation](https://docs.helloid.com/en/service-automation/delegated-forms.html) pages. |
 
 ## HelloID docs
 
